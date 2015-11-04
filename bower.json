@@ -1,0 +1,27 @@
+{
+  "name": "forward",
+  "version": "1.0.0",
+  "authors": [
+    "Ben Leivian <ben@drawbackwards.com>"
+  ],
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "homepage": "http://drawbackwards.com",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "./bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "bourbon": "~4.2.2",
+    "neat": "~1.7.2",
+    "normalize.css": "~3.0.3",
+    "meyer-reset": "*"
+  },
+  "description": "Components for the Forward Framework."
+}
