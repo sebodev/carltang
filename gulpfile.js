@@ -4,14 +4,11 @@
 
 // Project Variables
 //
-var project     = 'framework',
-    build       = '../'+project+'/',
-    dist        = '../'+project+'/',
-    source      = 'src/'+project+'/',
+var url         = 'carltang.dev',
     lang        = 'languages/',
-    bower       = 'bower_components/',
-    url         = 'framework.dev',
-    exclude     = ['inc/acf/', 'inc/font-awesome/']
+    source      = 'assets/src/',
+    dest        = 'assets/',
+    bower       = 'bower_components/'
 ;
 
 // Gulp Settings & Startup
@@ -41,7 +38,7 @@ gulp.task('styles', function() {
   .pipe(plugins.combineMediaQueries())
   .pipe(plugins.minifyCss({ keepSpecialComments: 1, keepBreaks: true, compatibility: 'ie8' }))
   .pipe(plugins.pixrem())
-  .pipe(gulp.dest(build))
+  .pipe(gulp.dest('./'))
   .pipe(browserSync.reload({ stream: true }))
 });
 
@@ -53,10 +50,10 @@ gulp.task('styles', function() {
 // Scripts; broken out into different tasks to create specific bundles which are then compressed in place
 //
 gulp.task('scripts', ['scripts-lint', 'scripts-core', 'scripts-extras'], function(){
-  return gulp.src([build+'js/**/*.js', '!'+build+'js/**/*.min.js']) // Avoid recursive min.min.min.js
+  return gulp.src([dest+'js/**/*.js', '!'+dest+'js/**/*.min.js']) // Avoid recursive min.min.min.js
   .pipe(plugins.rename({suffix: '.min'}))
   .pipe(plugins.uglify())
-  .pipe(gulp.dest(build+'js/'));
+  .pipe(gulp.dest(dest+'js/'));
 });
 
 // Lint scripts for errors and sub-optimal formatting
@@ -75,7 +72,7 @@ gulp.task('scripts-core', function() {
     //, source+'js/navigation.js' // An example of how to add files to a bundle
   ])
   .pipe(plugins.concat('core.js'))
-  .pipe(gulp.dest(build+'js/'));
+  .pipe(gulp.dest(dest+'js/'));
 });
 
 // An example task for extra scripts that aren't loaded on every page
@@ -86,99 +83,7 @@ gulp.task('scripts-extras', function() {
     source+'js/extras.js'
   ])
   .pipe(plugins.concat('extras.js'))
-  .pipe(gulp.dest(build+'js/'));
-});
-
-
-////////////
-// Images //
-////////////
-
-// Copy images; minification occurs during packaging
-//
-gulp.task('images', function() {
-  return gulp.src(source+'**/*(*.png|*.jpg|*.jpeg|*.gif)')
-  .pipe(gulp.dest(build));
-});
-
-
-///////////////
-// Languages //
-///////////////
-
-// Copy everything under `src/languages` indiscriminately
-//
-gulp.task('languages', function() {
-  return gulp.src(source+lang+'**/*')
-  .pipe(gulp.dest(build+lang));
-});
-
-
-
-/////////
-// PHP //
-/////////
-
-/// Just straight up copy some stuff
-///
-gulp.task('copy', function() {
-  return gulp.src([source+'inc/acf/**/*.*',source+'inc/font-awesome/**/*.*'], {base: source})
-  .pipe(gulp.dest(build));
-});
-
-// Copy PHP source files to the build directory
-//
-gulp.task('php', function() {
-  return gulp.src(source+'**/*.php')
-  .pipe(plugins.ignore(exclude))
-  .pipe(gulp.dest(build));
-});
-
-
-//////////////////
-// Distribution //
-//////////////////
-
-// Prepare a distribution, the properly minified, uglified, and sanitized version of the theme ready for installation
-//
-
-// Clean out junk files after build
-//
-gulp.task('clean', ['build'], function(cb) {
-  del([build+'**/.DS_Store'], cb)
-});
-
-// Totally wipe the contents of the distribution folder after doing a clean build
-//
-gulp.task('dist-wipe', ['clean'], function(cb) {
-  del([dist], cb)
-});
-
-// Copy everything in the build folder (except previously minified stylesheets) to the `dist/project` folder
-//
-gulp.task('dist-copy', ['dist-wipe'], function() {
-  return gulp.src([build+'**/*', '!'+build+'**/*.min.css'])
-  .pipe(gulp.dest(dist));
-});
-
-// Minify stylesheets in place
-//
-gulp.task('dist-styles', ['dist-copy'], function() {
-  return gulp.src([dist+'**/*.css', '!'+dist+'**/*.min.css'])
-  .pipe(plugins.minifyCss({ keepSpecialComments: 1, keepBreaks: true }))
-  .pipe(gulp.dest(dist));
-});
-
-// Optimize images in place
-//
-gulp.task('dist-images', ['dist-styles'], function() {
-  return gulp.src([dist+'**/*.png', dist+'**/*.jpg', dist+'**/*.jpeg', dist+'**/*.gif', '!'+dist+'screenshot.png'])
-  .pipe(plugins.imagemin({
-    optimizationLevel: 7
-  , progressive: true
-  , interlaced: true
-  }))
-  .pipe(gulp.dest(dist));
+  .pipe(gulp.dest(dest+'js/'));
 });
 
 
@@ -211,27 +116,12 @@ gulp.task('browser-sync', function() {
     });
 });
 
-
-///////////
-// Tasks //
-///////////
-
-// Build styles and scripts; copy PHP files
-//
-gulp.task('build', ['styles', 'scripts', 'images', 'languages', 'php', 'copy']);
-
-// Release creates a clean distribution package under `dist` after running build, clean, and wipe in sequence
-//
-gulp.task('dist', ['dist-images']);
-
 // Watch Task
 //
 gulp.task('watch', ['browser-sync'], function() {
   gulp.watch(source+'scss/**/*.scss', ['styles']);
   gulp.watch([source+'js/**/*.js', bower+'**/*.js'], ['scripts']);
   gulp.watch(source+'**/*(*.png|*.jpg|*.jpeg|*.gif)', ['images']);
-  gulp.watch(source+'**/*.php', ['php']);
-  // gulp.watch([build+'**/*', dist+'**/*'], reload);
 });
 
 // Default Task (Watch)
